@@ -1,76 +1,121 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="utf-8">
-  <title></title>
-  <style>
-      body {
-        background-color: lightblue;
-        text-align: center;
-      }
-      
-      .lds-ring {
-  display: inline-block;
-  position: relative;
-  width: 80px;
-  height: 80px;
-}
-.lds-ring div {
-  box-sizing: border-box;
-  display: block;
-  position: absolute;
-  width: 64px;
-  height: 64px;
-  margin: 8px;
-  border: 8px solid #fff;
-  border-radius: 50%;
-  animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-  border-color: #fff transparent transparent transparent;
-}
-.lds-ring div:nth-child(1) {
-  animation-delay: -0.45s;
-}
-.lds-ring div:nth-child(2) {
-  animation-delay: -0.3s;
-}
-.lds-ring div:nth-child(3) {
-  animation-delay: -0.15s;
-}
-@keyframes lds-ring {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
+    <meta charset="utf-8">
+    <title>Redirección Dinámica QR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background-color: lightblue;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
 
-  </style>
+        .lds-ring {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+        .lds-ring div {
+            box-sizing: border-box;
+            display: block;
+            position: absolute;
+            width: 64px;
+            height: 64px;
+            margin: 8px;
+            border: 8px solid #fff;
+            border-radius: 50%;
+            animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+            border-color: #fff transparent transparent transparent;
+        }
+        .lds-ring div:nth-child(1) {
+            animation-delay: -0.45s;
+        }
+        .lds-ring div:nth-child(2) {
+            animation-delay: -0.3s;
+        }
+        .lds-ring div:nth-child(3) {
+            animation-delay: -0.15s;
+        }
+        @keyframes lds-ring {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        .container {
+          padding: 20px;
+          border-radius: 10px;
+          background-color: rgba(255, 255, 255, 0.8); /* Fondo semi-transparente */
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+        }
+
+        .message {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
-  <script>
-    const AS_URL_BASE = "https://script.google.com/macros/s/AKfycbx8frUW5cOMvqZbJvZJeUZpJ2aaQxGGXuQjLMYeK0RWwylJEPj4ipG8fWzWXU0D6CNW/exec";
-    
-    var url = document.location.href;
-    var k = url.substr(url.lastIndexOf("k=")+2);
-    
-    if(k){
-      fetch(AS_URL_BASE+'?k='+k)
-      .then(r => r.text())
-      .then((r) => {
-        console.log(r);
-        //document.write(r);
-        if(r){
-          document.location.replace(r);
-        }
-      })
-      .catch(err => console.log(err))
-    }
+    <div class="container">
+        <div class="message">
+            Redirigiendo...
+        </div>
+        <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+    </div>
+    <script>
+        const AS_URL_BASE = "https://script.google.com/macros/s/AKfycbx8frUW5cOMvqZbJvZJeUZpJ2aaQxGGXuQjLMYeK0RWwylJEPj4ipG8fWzWXU0D6CNW/exec";
 
-  </script>
-  
-  <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
-  
-  
+        var url = document.location.href;
+        var k = url.substring(url.indexOf("key=") + 4); // Cambiado a substring y ajustado el índice
+
+        if (k) {
+            fetch(AS_URL_BASE + '?k=' + k)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text(); // Use .text() to get the URL
+                })
+                .then(redirectUrl => {
+                    console.log("URL de redirección obtenida:", redirectUrl);
+                    if (redirectUrl) {
+                        // Validar la URL antes de la redirección
+                        try {
+                           new URL(redirectUrl); // Intenta crear un objeto URL, lanza un error si no es válida
+                            document.location.replace(redirectUrl);
+                        } catch (_) {
+                            console.error("URL de redirección inválida:", redirectUrl);
+                            // Aquí podrías mostrar un mensaje de error al usuario en el HTML
+                            document.querySelector('.message').textContent = "Enlace inválido. Por favor, contacte al administrador.";
+                            document.querySelector('.lds-ring').style.display = 'none'; // Oculta el spinner
+                        }
+                    } else {
+                        console.warn("No se recibió URL de redirección desde la API.");
+                        // Aquí también debes mostrar un mensaje de error en el HTML
+                        document.querySelector('.message').textContent = "No se encontró enlace para la clave proporcionada.";
+                        document.querySelector('.lds-ring').style.display = 'none'; // Oculta el spinner
+                    }
+                })
+                .catch(error => {
+                    console.error("Error al obtener la URL:", error);
+                    // Y aquí, un mensaje de error en el HTML
+                    document.querySelector('.message').textContent = "Error al conectar con el servidor.";
+                    document.querySelector('.lds-ring').style.display = 'none'; // Oculta el spinner
+                });
+        } else {
+            console.warn("La clave 'k' no se encontró en la URL.");
+            document.querySelector('.message').textContent = "Clave de acceso no válida.";
+            document.querySelector('.lds-ring').style.display = 'none'; // Oculta el spinner
+        }
+    </script>
 </body>
 </html>
