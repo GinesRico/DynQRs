@@ -72,10 +72,10 @@
         <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
     </div>
     <script>
-        const AS_URL_BASE = "https://script.google.com/macros/s/AKfycbyXyRO3t4dIGE6oPE4mjghVlQomt0gFgfgQczPraH5NbOo1ORwoCajjN6voMHsfn4tI/exec";
+        const AS_URL_BASE = "https://script.google.com/macros/s/AKfycbx8frUW5cOMvqZbJvZJeUZpJ2aaQxGGXuQjLMYeK0RWwylJEPj4ipG8fWzWXU0D6CNW/exec";
 
         var url = document.location.href;
-        var k = url.substring(url.indexOf("key=") + 4); // Cambiado a substring y ajustado el índice
+        var k = url.substring(url.indexOf("key=") + 4);
 
         if (k) {
             fetch(AS_URL_BASE + '?k=' + k)
@@ -83,38 +83,34 @@
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
-                    return response.text(); // Use .text() to get the URL
+                    return response.text();
                 })
                 .then(redirectUrl => {
                     console.log("URL de redirección obtenida:", redirectUrl);
                     if (redirectUrl) {
-                        // Validar la URL antes de la redirección
                         try {
-                           new URL(redirectUrl); // Intenta crear un objeto URL, lanza un error si no es válida
+                            new URL(redirectUrl);
                             document.location.replace(redirectUrl);
                         } catch (_) {
                             console.error("URL de redirección inválida:", redirectUrl);
-                            // Aquí podrías mostrar un mensaje de error al usuario en el HTML
                             document.querySelector('.message').textContent = "Enlace inválido. Por favor, contacte al administrador.";
-                            document.querySelector('.lds-ring').style.display = 'none'; // Oculta el spinner
+                            document.querySelector('.lds-ring').style.display = 'none';
                         }
                     } else {
                         console.warn("No se recibió URL de redirección desde la API.");
-                        // Aquí también debes mostrar un mensaje de error en el HTML
                         document.querySelector('.message').textContent = "No se encontró enlace para la clave proporcionada.";
-                        document.querySelector('.lds-ring').style.display = 'none'; // Oculta el spinner
+                        document.querySelector('.lds-ring').style.display = 'none';
                     }
                 })
                 .catch(error => {
                     console.error("Error al obtener la URL:", error);
-                    // Y aquí, un mensaje de error en el HTML
                     document.querySelector('.message').textContent = "Error al conectar con el servidor.";
-                    document.querySelector('.lds-ring').style.display = 'none'; // Oculta el spinner
+                    document.querySelector('.lds-ring').style.display = 'none';
                 });
         } else {
             console.warn("La clave 'k' no se encontró en la URL.");
             document.querySelector('.message').textContent = "Clave de acceso no válida.";
-            document.querySelector('.lds-ring').style.display = 'none'; // Oculta el spinner
+            document.querySelector('.lds-ring').style.display = 'none';
         }
     </script>
 </body>
